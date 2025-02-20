@@ -1,5 +1,9 @@
 # Chunkgroup
 
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/celrenheit/chunkgroup)](https://pkg.go.dev/github.com/celrenheit/chunkgroup)
+[![Go Report Card](https://goreportcard.com/badge/github.com/celrenheit/chunkgroup)](https://goreportcard.com/report/github.com/celrenheit/chunkgroup)
+![GitHub](https://img.shields.io/github/license/celrenheit/chunkgroup)
+
 Package chunkgroup provides a way to schedule the execution of a function when a chunk of data is ready.
 
 ## Example
