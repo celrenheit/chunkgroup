@@ -11,13 +11,14 @@ import (
 // The function is executed when the slice reaches its capacity.
 // The function is executed concurrently with a limit of concurrency.
 type Group[T any] struct {
+	ctx   context.Context
 	items []T
 	fn    ExecFunc[T]
 	eg    *errgroup.Group
 }
 
 // ExecFunc is a function that takes a slice of items and returns an error.
-type ExecFunc[T any] func([]T) error
+type ExecFunc[T any] func(context.Context, []T) error
 
 // New creates a new Group with the given size and concurrency.
 func New[T any](size, concurrency int, fn ExecFunc[T]) *Group[T] {
@@ -32,6 +33,7 @@ func WithContext[T any](ctx context.Context, size, concurrency int, fn ExecFunc[
 	eg.SetLimit(concurrency)
 
 	return &Group[T]{
+		ctx:   ctx,
 		items: make([]T, 0, size),
 		fn:    fn,
 		eg:    eg,
@@ -45,7 +47,7 @@ func (g *Group[T]) Add(item T) {
 	if len(g.items) == cap(g.items) {
 		tmp := slices.Clone(g.items)
 		g.eg.Go(func() error {
-			return g.fn(tmp)
+			return g.fn(g.ctx, tmp)
 		})
 
 		g.items = g.items[:0]
@@ -57,7 +59,7 @@ func (g *Group[T]) Add(item T) {
 func (g *Group[T]) Flush() error {
 	if len(g.items) > 0 {
 		tmp := slices.Clone(g.items)
-		g.eg.Go(func() error { return g.fn(tmp) })
+		g.eg.Go(func() error { return g.fn(g.ctx, tmp) })
 
 		g.items = g.items[:0]
 	}
